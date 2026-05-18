@@ -1,0 +1,168 @@
+@layer tailwind, ant;
+
+@layer tailwind {
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
+
+  /* Default border color for elements that opt into a border via `border-*`
+     utilities without specifying a color. Kept INSIDE the tailwind layer so
+     color utilities like `border-black/30` win on specificity — otherwise
+     this universal rule sits in the anonymous (top) layer and overrides
+     every utility, painting nav-bar borders the light `--border` token in
+     light mode (visible as a white split between the global nav and
+     workspace tab bar). */
+  * {
+    @apply border-border;
+  }
+}
+
+/* Light theme (default) */
+:root {
+  --background: 210 20% 98%;
+  --foreground: 222 84% 5%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 84% 5%;
+  --primary: 211 70% 38%;       /* #1B65A6 Ameritas Blue */
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+  --success: 142 71% 45%;
+  --warning: 38 92% 50%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 211 70% 38%;
+  --radius: 0.5rem;
+
+  /* Sign-in page tokens (animated component) — direct CSS color values, not space-separated HSL */
+  --skeleton: hsl(0, 0%, 90%);
+  --btn-border: hsl(214, 32%, 91%);
+}
+
+/* Dark theme */
+.dark {
+  --background: 224 71% 3%;
+  --foreground: 210 40% 98%;
+  --card: 224 71% 4%;
+  --card-foreground: 210 40% 98%;
+  --primary: 213 80% 60%;       /* #4A9AE6 Ameritas Blue (dark) */
+  --primary-foreground: 222 84% 5%;
+  --secondary: 217 33% 17%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217 33% 17%;
+  --muted-foreground: 215 20% 65%;
+  --destructive: 0 63% 58%;
+  --destructive-foreground: 210 40% 98%;
+  --success: 142 71% 55%;
+  --warning: 38 92% 60%;
+  --border: 217 33% 17%;
+  --input: 217 33% 17%;
+  --ring: 213 80% 60%;
+
+  /* Sign-in page tokens — dark variant */
+  --skeleton: hsl(218, 36%, 16%);
+  --btn-border: hsl(217, 33%, 18%);
+}
+
+/* Ant Design CSS isolation via @layer */
+.ant-scoped {
+  /* Ant Design components render within this wrapper.
+     ant layer declared after tailwind gives Ant styles precedence here. */
+}
+
+/* Base styles */
+body {
+  @apply bg-background text-foreground;
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Ensure all form controls inherit proper text color */
+select, input, textarea {
+  color: hsl(var(--foreground));
+}
+
+select option {
+  color: inherit;
+  background-color: hsl(var(--background));
+}
+
+/* Focus-visible styles for keyboard navigation (WCAG 2.1 AA) */
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 0px;
+  border-radius: 6px;
+}
+
+/* ── DataWrangler shell + status design tokens (Phase 48) ──────────── */
+:root {
+  /* Global nav bar — always dark regardless of light/dark theme */
+  --dw-shell-bg: 240 6% 10%;
+  --dw-shell-fg: 0 0% 95%;
+  --dw-shell-muted: 240 5% 65%;
+
+  /* Workspace tab bar — slightly lighter than global */
+  --dw-tabs-bg: 240 6% 14%;
+  --dw-tabs-fg: 0 0% 90%;
+  --dw-tabs-active: 270 70% 60%;
+
+  /* Brand + CTA — Ameritas Blue → brand purple, tuned for the dark workspace bar */
+  --dw-brand: 270 70% 60%;
+  --dw-brand-fg: 0 0% 100%;
+  --dw-cta-from: 213 80% 55%;
+  --dw-cta-to: 270 70% 60%;
+
+  /* Status pills */
+  --dw-pill-success: 142 65% 45%;
+  --dw-pill-running: 200 90% 55%;
+  --dw-pill-warning: 38 90% 55%;
+  --dw-pill-danger: 0 75% 55%;
+
+  /* Data viz palette — categorical, professional, distinguishable in both modes.
+     Use --chart-1..--chart-7 anywhere a series color is needed. */
+  --chart-1: 211 70% 42%;  /* Ameritas Blue */
+  --chart-2: 174 65% 42%;  /* Teal */
+  --chart-3: 270 60% 58%;  /* Purple */
+  --chart-4: 142 60% 42%;  /* Emerald */
+  --chart-5: 38 90% 52%;   /* Amber */
+  --chart-6: 0 72% 55%;    /* Coral red */
+  --chart-7: 195 85% 48%;  /* Cyan */
+  --chart-8: 320 65% 55%;  /* Magenta */
+
+  /* Chart structural colors */
+  --chart-grid: 214 32% 88%;
+  --chart-axis: 215 16% 47%;
+}
+
+.dark {
+  --chart-1: 213 80% 62%;
+  --chart-2: 174 70% 52%;
+  --chart-3: 270 75% 70%;
+  --chart-4: 142 65% 55%;
+  --chart-5: 38 95% 60%;
+  --chart-6: 0 78% 65%;
+  --chart-7: 195 90% 60%;
+  --chart-8: 320 75% 65%;
+
+  --chart-grid: 217 33% 22%;
+  --chart-axis: 215 20% 65%;
+}
+
+/* Sign-in page button helper (animated-sign-in component) */
+.g-button {
+  border-radius: var(--radius);
+  border: 1px solid var(--btn-border);
+}

@@ -1,0 +1,17 @@
+[project]
+name = "datawrangler-cli"
+version = "0.3.0"
+description = "DataWrangler CLI — TDM operations from the command line"
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.27.0",
+    "click>=8.1.0",
+    "rich>=13.9.0",
+]
+
+[project.scripts]
+datawrangler = "datawrangler.cli:main"
+
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.backends._legacy:_Backend"

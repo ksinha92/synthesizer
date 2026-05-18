@@ -1,0 +1,138 @@
+services:
+  postgres:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: datawrangler
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init-keycloak-db.sh:/docker-entrypoint-initdb.d/init-keycloak-db.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    env_file:
+      - .env
+    # Workaround: pin to passlib + bcrypt 4.x at container start because the
+    # MS-repo network step in the Dockerfile is currently failing rebuilds.
+    # Once the rebuild succeeds, pyproject.toml already lists both — remove
+    # this command override then.
+    command: >
+      sh -c "pip install --no-cache-dir 'passlib[bcrypt]>=1.7.4' 'bcrypt>=4.0,<5.0' &&
+             exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/datawrangler
+      DATABASE_URL_SYNC: postgresql+psycopg2://postgres:postgres@postgres:5432/datawrangler
+      REDIS_URL: redis://redis:6379/0
+      ENVIRONMENT: development
+      OIDC_ISSUER_URL: http://keycloak:8080/realms/datawrangler
+      OIDC_CLIENT_ID: datawrangler-app
+      OIDC_CLIENT_SECRET: dev-secret
+      OIDC_REDIRECT_URI: http://localhost:8000/api/v1/auth/sso/callback
+      # Opt-in seed for the documented dev admin (only in this dev compose
+      # file — production deployments must provide their own values).
+      SEED_DEFAULT_ADMIN: "1"
+      ADMIN_DEFAULT_EMAIL: admin@ameritas.local
+      ADMIN_DEFAULT_PASSWORD: Admin@12345
+      ADMIN_DEFAULT_FULL_NAME: Default Admin
+      # Ollama runs on the developer's host (the LLM-Ollama-process is not
+      # containerised). Inside the container "localhost" is the container
+      # itself, so we have to use the Docker-host indirection.
+      # host.docker.internal resolves automatically on Docker Desktop; the
+      # extra_hosts line below makes it work on Linux too.
+      OLLAMA_URL: http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: ./backend
+    # Same passlib install workaround as the backend service — once the
+    # Dockerfile rebuild succeeds these can both drop back to the plain
+    # CMD form.
+    command: >
+      sh -c "pip install --no-cache-dir 'passlib[bcrypt]>=1.7.4' 'bcrypt>=4.0,<5.0' &&
+             exec celery -A app.infrastructure.messaging.celery_app worker --loglevel=info"
+    volumes:
+      - ./backend:/app
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/datawrangler
+      DATABASE_URL_SYNC: postgresql+psycopg2://postgres:postgres@postgres:5432/datawrangler
+      REDIS_URL: redis://redis:6379/0
+      ENVIRONMENT: development
+      # Workers also reach Ollama on the developer's host — same indirection
+      # as the backend service above.
+      OLLAMA_URL: http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    ports:
+      - "8080:8080"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres
+    command: start-dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  flower:
+    image: mher/flower
+    ports:
+      - "5555:5555"
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+
+volumes:
+  pgdata:

@@ -1,0 +1,41 @@
+*.DS_Store
+.env
+.env.prod
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+.venv/
+venv/
+
+# Python caches
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Build / framework output
+.next/
+out/
+dist/
+build/
+.turbo/
+
+# Agent / swarm runtime state (machine-local)
+.claude/
+.claude-flow/
+.swarm/
+.playwright-mcp/
+.paul/STATE.md
+*.rvf
+*.rvf.lock
+*.db
+*.db-shm
+*.db-wal
+*.pid
+
+# Local plugin state (remember plugin: session logs, autonomous saves)
+.remember/
+
+# Debug artifacts
+dashboard-error-state.png

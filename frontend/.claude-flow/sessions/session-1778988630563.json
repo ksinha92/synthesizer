@@ -1,0 +1,14 @@
+{
+  "id": "session-1778988630563",
+  "startedAt": "2026-05-17T03:30:30.563Z",
+  "cwd": "/Users/koushiksinha12/Desktop/ameritas-datawrnager/frontend",
+  "context": {},
+  "metrics": {
+    "edits": 161,
+    "commands": 0,
+    "tasks": 0,
+    "errors": 0
+  },
+  "endedAt": "2026-05-17T06:03:03.768Z",
+  "duration": 9153206
+}

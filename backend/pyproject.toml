@@ -1,0 +1,77 @@
+[project]
+name = "datawrangler"
+version = "0.0.0"
+description = "AI-Powered Test Data Management Platform"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "pydantic>=2.9.0",
+    "pydantic-settings>=2.5.0",
+    "sqlalchemy[asyncio]>=2.0.35",
+    "asyncpg>=0.30.0",
+    "psycopg2-binary>=2.9.9",
+    "alembic>=1.13.0",
+    "dependency-injector>=4.42.0",
+    "redis>=5.1.0",
+    "celery[redis]>=5.4.0",
+    "structlog>=24.4.0",
+    "pybreaker>=1.2.0",
+    "authlib>=1.3.0",
+    "httpx>=0.27.0",
+    "python-jose[cryptography]>=3.3.0",
+    "slowapi>=0.1.9",
+    "presidio-analyzer>=2.2.0",
+    "spacy>=3.7.0",
+    "anthropic>=0.39.0",
+    "faker>=30.0.0",
+    "aiomysql>=0.2.0",
+    "motor>=3.6.0",
+    "snowflake-connector-python>=3.12.0",
+    "oracledb>=2.4.0",
+    "pyodbc>=5.1.0",
+    "redshift-connector>=2.1.0",
+    "databricks-sql-connector>=3.4.0",
+    "databricks-sdk>=0.32.0",
+    "ibm-db>=3.2.0",
+    "ibm-db-sa>=0.4.0",
+    "copulas>=0.12.0",
+    "ctgan>=0.11.0",
+    "scipy>=1.14.0",
+    "cloudpickle>=3.0.0",
+    "ff3>=1.0.0",
+    "cryptography>=43.0.0",
+    "pandas>=2.2.0",
+    "numpy>=1.26.0",
+    "reportlab>=4.2.0",
+    "openpyxl>=3.1.0",
+    "python-multipart>=0.0.9",
+    "pyarrow>=18.0.0",
+    "passlib[bcrypt]>=1.7.4",
+    "bcrypt>=4.0,<5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3,<9.0",
+    "pytest-asyncio>=0.23,<2.0",
+    "httpx>=0.27.0",
+    "ruff>=0.7.0",
+    "factory-boy>=3.3.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
